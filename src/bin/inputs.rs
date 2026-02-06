@@ -18,6 +18,15 @@ fn average(percentages: &[f64]) -> f64 {
 fn read_csv(path: &str) {
     let mut rdr =
         Reader::from_path(path).expect("could not find `ages.csv`. have you ran `generate.rs`?");
+    let mut wtr = csv::Writer::from_path("percentages.csv").unwrap();
+    wtr.write_record([
+        "block",
+        "percent 5 blocks old",
+        "percent 10 blocks old",
+        "percent 50 blocks old",
+        "percent 100 blocks old",
+    ])
+    .unwrap();
     let mut total_5 = Vec::new();
     let mut total_10 = Vec::new();
     let mut total_50 = Vec::new();
@@ -44,6 +53,14 @@ fn read_csv(path: &str) {
         total_10.push(percent_are_10);
         total_50.push(percent_are_50);
         total_100.push(percent_are_100);
+        wtr.write_record([
+            block.to_string(),
+            format!("{:.4}", percent_are_5),
+            format!("{:.4}", percent_are_10),
+            format!("{:.4}", percent_are_50),
+            format!("{:.4}", percent_are_100),
+        ])
+        .unwrap();
     }
     println!(" ");
     println!(">>> Summary >>>");
@@ -55,4 +72,7 @@ fn read_csv(path: &str) {
         "percentage 100 blocks or earlier {:.4}",
         average(&total_100)
     );
+    println!(" ");
+    println!("Flushed results to `percentages.csv`");
+    wtr.flush().unwrap();
 }
